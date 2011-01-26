@@ -23,7 +23,7 @@ char keys[256],
 typedef struct tagHANDLERS {
 	void (* updateWorld)(float);
 	void (* resizeWorld)(void);
-	int (* drawWorld)(void);
+	int  (* drawWorld)(void);
 	void (* destroyWorld)(void);
 	void (* keyboard)(unsigned char, int, int);
 	void (* keyboardup)(unsigned char, int, int);
@@ -259,6 +259,10 @@ void InitEngine(int * argc, char ** argv)
 
 void RunEngine()
 {
-	printf("Engine run!\n");
+	frameps = 0;
+	drawps = 0;
+	gettimeofday(&controlframebase, NULL);
+	gettimeofday(&drawframebase, NULL);
+
 	glutMainLoop();
 }
