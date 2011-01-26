@@ -18,7 +18,7 @@ objects               := $(objects:.c=.o)
 all : $(program_name)
 
 $(program_name) : obj_dirs $(objects)
-	g++ -o $@ $(objects) $(link_flags) $(libraries) $(build_flags)
+	gcc -o $@ $(objects) $(link_flags) $(libraries) $(build_flags)
 
 obj_dirs :
 	mkdir -p $(objects_dirs)
