@@ -25,6 +25,8 @@ Map * coverMap(Map *);
 Map * normalizeMap(Map *);
 Map * randomizeMap(Map *);
 
+Tank * t1, * t2;
+
 void SetupWorld()
 {
 	int i;
@@ -47,7 +49,36 @@ void SetupWorld()
 	/*normalizeMap(world->map);*/
 	coverMap(world->map);
 
-	MoveCameraAtTile(world->map->width / 2, world->map->height / 2);
+	MoveCameraAtTile(5,5);
+
+	t1 = (Tank *)malloc(sizeof(Tank));
+	t1->x = 250;
+	t1->y = 0;
+	printf("Tank1 x %f y %f\n", t1->x, t1->y);
+	t1->h = 50;
+	t1->w = 50;
+	t1->vx = 50;
+	t1->vy = 50;
+	t1->ax = 5;
+	t1->ay = 15;
+	t1->angle = 45;
+	t1->wa = 45;
+	t1->omega = 10;
+	t1->world = world;
+
+	t2 = (Tank *)malloc(sizeof(Tank));
+	t2->x = 350;
+	t2->y = 0;
+	t2->h = 50;
+	t2->w = 50;
+	t2->vx = -10;
+	t2->vy = 0;
+	t2->ax = 0;
+	t2->ay = 10;
+	t2->angle = 180;
+	t2->wa = 20;
+	t2->omega = 0;
+	t2->world = world;
 }
 
 void DestroyWorld()
@@ -131,6 +162,8 @@ void DrawWorld()
 
 void UpdateWorld(float dt)
 {
+	UpdateTank(t1, dt);
+	UpdateTank(t2, dt);
 }
 
 Tile * getTile(Map * m, int x, int y)
@@ -204,7 +237,12 @@ void DrawMap(World * w)
 			glVertex2i(x2, y2);
 		}
 	glEnd();
+	
 
+	DrawTank(t1);
+	DrawTank(t2);
+	
+	
 	/*glColor3f(1.0, 0.0, 0.0);*/
 	/*glBegin(GL_LINES);*/
 		/*glVertex2i(portvw/4, portvh/4);*/
