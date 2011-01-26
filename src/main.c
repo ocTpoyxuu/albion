@@ -3,7 +3,7 @@
 #include "main.h"
 
 const char AppName [] = "Reciv";
-Application app = {30.0, 800, 600, 200, 100, 800, 600, 0, 0.0, 0.0};
+Application app = {30.0, 800, 600, 200, 100, 800, 600, 1, 0.0, 0.0};
 
 int mx = -1,	my = -1,
 	mbx = -1, mby = -1,

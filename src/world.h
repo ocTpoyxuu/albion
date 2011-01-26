@@ -3,14 +3,10 @@
 
 #include "main.h"
 
-extern const unsigned int mapx;
-extern const unsigned int mapy;
-extern const int tilesizex;
-extern const int tilesizey;
-extern const int camstep;
-
 typedef struct tagTILE {
 	int cx, cy;
+
+	float ground;
 
 	float color[4];
 } Tile;

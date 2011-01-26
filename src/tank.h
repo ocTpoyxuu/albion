@@ -20,5 +20,4 @@ void UpdateTank(Tank *, float);
 
 void DrawTank(Tank *);
 
-
 #endif
