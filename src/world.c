@@ -16,6 +16,7 @@ const int camstep = 10;
 
 World * world;
 
+void DrawMapVertex(World *);
 Tile * getTile(Map *, int, int);
 void DrawMap(World *);
 Map * getMap(World *, int, int);
@@ -24,6 +25,7 @@ Map * smoothMap(Map *);
 Map * coverMap(Map *);
 Map * normalizeMap(Map *);
 Map * randomizeMap(Map *);
+Map * quadMap(Map *);
 
 Tank * t1, * t2;
 
@@ -42,14 +44,15 @@ void SetupWorld()
 	world->coef = 1.0;
 	world->map = getMap(world, mapx, mapy);
 
+	/*randomizeMap(world->map);*/
 	generateMap(world->map);
 	smoothMap(world->map);
-	randomizeMap(world->map);
-	smoothMap(world->map);
-	/*normalizeMap(world->map);*/
+	quadMap(world->map);
+	normalizeMap(world->map);
 	coverMap(world->map);
 
-	MoveCameraAtTile(5,5);
+	/*MoveCameraAtTile(world->map->width / 2, world->map->height / 2);*/
+	MoveCameraAtTile(5, 5);
 
 	t1 = (Tank *)malloc(sizeof(Tank));
 	t1->x = 250;
@@ -158,6 +161,7 @@ void ZoomCamera(int s)
 void DrawWorld()
 {
 	DrawMap(world);
+	/*DrawMapVertex(world);*/
 }
 
 void UpdateWorld(float dt)
@@ -168,7 +172,7 @@ void UpdateWorld(float dt)
 
 Tile * getTile(Map * m, int x, int y)
 {
-	return m->tiles + m->width*y + x;
+	return m->tiles + m->width*(y % m->height) + (x % m->width);
 }
 
 void DrawMap(World * w)
@@ -241,6 +245,74 @@ void DrawMap(World * w)
 
 	DrawTank(t1);
 	DrawTank(t2);
+	
+	
+	/*glColor3f(1.0, 0.0, 0.0);*/
+	/*glBegin(GL_LINES);*/
+		/*glVertex2i(portvw/4, portvh/4);*/
+		/*glVertex2i(3*portvw/4, portvh/4);*/
+
+		/*glVertex2i(3*portvw/4, portvh/4);*/
+		/*glVertex2i(3*portvw/4, 3*portvh/4);*/
+
+		/*glVertex2i(3*portvw/4, 3*portvh/4);*/
+		/*glVertex2i(portvw/4, 3*portvh/4);*/
+
+		/*glVertex2i(portvw/4, 3*portvh/4);*/
+		/*glVertex2i(portvw/4, portvh/4);*/
+	/*glEnd();*/
+}
+
+void DrawMapVertex(World * w)
+{
+	int i, j;
+	Tile * t, * tb, * tr, * tbr;
+
+	glScalef(w->coef, w->coef, 1.0);
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+	glPushMatrix();
+	/*glTranslated(-w->camx, -w->camy, 0);*/
+
+	glBegin(GL_QUADS);
+	for (i = 0; i < w->map->width; i++)
+		for (j = 0; j < w->map->height; j++)
+		{
+			t = getTile(w->map, i, j);
+			tb = getTile(w->map, i, j + 1);
+			tr = getTile(w->map, i + 1, j);
+			tbr = getTile(w->map, i + 1, j + 1);
+
+			int x1 = w->tsx*t->cx;
+			int x2 = w->tsx*(t->cx + 1);
+			int y1 = w->tsy*t->cy;
+			int y2 = w->tsy*(t->cy + 1);
+
+			glColor4f(tb->color[0], tb->color[1], tb->color[2], tb->color[3]);
+			glVertex2i(x1, y2);
+			glColor4f(t->color[0], t->color[1], t->color[2], t->color[3]);
+			glVertex2i(x1, y1);
+			glColor4f(tr->color[0], tr->color[1], tr->color[2], tr->color[3]);
+			glVertex2i(x2, y1);
+			glColor4f(tbr->color[0], tbr->color[1], tbr->color[2], tbr->color[3]);
+			glVertex2i(x2, y2);
+		}
+	/*glColor3f(1.0, 0.0, 0.0);*/
+	/*glVertex2i(0, 1000);*/
+	/*glColor3f(1.0, 1.0, 0.0);*/
+	/*glVertex2i(0, 0);*/
+	/*glColor3f(0.0, 1.0, 0.0);*/
+	/*glVertex2i(1000, 0);*/
+	/*glColor3f(0.0, 1.0, 1.0);*/
+	/*glVertex2i(1000, 1000);*/
+	glEnd();
+
+	glPopMatrix();
+	
+
+	/*DrawTank(t1);*/
+	/*DrawTank(t2);*/
 	
 	
 	/*glColor3f(1.0, 0.0, 0.0);*/
@@ -350,8 +422,9 @@ Map * smoothMap(Map * m)
 
 Map * coverMap(Map * m)
 {
-	const float waterLevel = 0.45;
-	const float mountainLevel = 0.8;
+	const float waterLevel = 0.3;
+	const float mountainLevel = 0.7;
+	const float groundLevel = 0.5;
 	int i, j;
 	Tile * t;
 
@@ -359,6 +432,19 @@ Map * coverMap(Map * m)
 		for (j = 0; j < m->height; j++)
 		{
 			t = getTile(m, i, j);
+
+			/*if (t->ground <= groundLevel)*/
+			/*{*/
+				/*t->color[0] = 0.0f;*/
+				/*t->color[1] = t->ground / groundLevel;*/
+				/*t->color[2] = 1.0f - t->ground / groundLevel;*/
+			/*}*/
+			/*else*/
+			/*{*/
+				/*t->color[0] = t->ground / groundLevel - 1.0f;*/
+				/*t->color[1] = 2.0f - t->ground / groundLevel;*/
+				/*t->color[2] = 0.0f;*/
+			/*}*/
 
 			if (t->ground < waterLevel)
 			{
@@ -405,6 +491,8 @@ Map * normalizeMap(Map * m)
 				max = t->ground;
 		}
 
+	printf("Min %f max %f\n", min, max);
+
 	for (i = 0; i < m->width; i++)
 		for (j = 0; j < m->height; j++)
 		{
@@ -428,8 +516,24 @@ Map * randomizeMap(Map * m)
 		j = rand()%(m->height);
 		c = (rand()%601 - 300)/300.0f;
 		t = getTile(m, i, j);
-		t->ground += c;
+		t->ground += c*(c < 0 ? t->ground : 1.0 - t->ground);
 	}
+
+	return m;
+}
+
+Map * quadMap(Map * m)
+{
+	int i, j, k;
+	float c;
+	Tile * t;
+
+	for (i = 0; i < m->width; i++)
+		for (j = 0; j < m->height; j++)
+		{
+			t = getTile(m, i, j);
+			t->ground = pow(t->ground*2.0, 2)/4.0;
+		}
 
 	return m;
 }
