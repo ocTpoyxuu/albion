@@ -15,9 +15,11 @@ void UpdateTank(Tank * tank, float dt)
 void DrawTank(Tank * tank)
 {
 	int sx, sy;
+	int portvw = app.portw/tank->world->coef,
+		portvh = app.porth/tank->world->coef;
 
-	sx = (int)tank->x - tank->world->camx + app.portw/2;
-	sy = app.porth/2 - (int)tank->y + tank->world->camy;
+	sx = (int)tank->x - tank->world->camx + portvw/2;
+	sy = portvh/2 - (int)tank->y + tank->world->camy;
 
 	glPushMatrix();
 	glTranslated(sx, sy, 0);

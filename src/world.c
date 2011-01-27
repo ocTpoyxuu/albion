@@ -53,13 +53,13 @@ void SetupWorld()
 
 	/*MoveCameraAtTile(world->map->width / 2, world->map->height / 2);*/
 	MoveCameraAtTile(5, 5);
+	ZoomCamera(-16);
 
 	t1 = (Tank *)malloc(sizeof(Tank));
 	t1->x = 250;
 	t1->y = 0;
-	printf("Tank1 x %f y %f\n", t1->x, t1->y);
-	t1->h = 50;
-	t1->w = 50;
+	t1->h = 250;
+	t1->w = 250;
 	t1->vx = 50;
 	t1->vy = 50;
 	t1->ax = 5;
@@ -72,9 +72,9 @@ void SetupWorld()
 	t2 = (Tank *)malloc(sizeof(Tank));
 	t2->x = 350;
 	t2->y = 0;
-	t2->h = 50;
-	t2->w = 50;
-	t2->vx = -10;
+	t2->h = 250;
+	t2->w = 250;
+	t2->vx = 10;
 	t2->vy = 0;
 	t2->ax = 0;
 	t2->ay = 10;
@@ -160,8 +160,13 @@ void ZoomCamera(int s)
 
 void DrawWorld()
 {
+	glScalef(world->coef, world->coef, 1.0);
+
 	DrawMap(world);
 	/*DrawMapVertex(world);*/
+
+	DrawTank(t1);
+	DrawTank(t2);
 }
 
 void UpdateWorld(float dt)
@@ -219,7 +224,6 @@ void DrawMap(World * w)
 	else
 		cy2 = wy2 / w->tsy + 1;
 
-	glScalef(w->coef, w->coef, 1.0);
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
@@ -241,11 +245,6 @@ void DrawMap(World * w)
 			glVertex2i(x2, y2);
 		}
 	glEnd();
-	
-
-	DrawTank(t1);
-	DrawTank(t2);
-	
 	
 	/*glColor3f(1.0, 0.0, 0.0);*/
 	/*glBegin(GL_LINES);*/
