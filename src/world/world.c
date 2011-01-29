@@ -25,14 +25,27 @@ void SetupWorld()
 
 	/*randomizeMap(world->map);*/
 	generateMap(world->map);
-	smoothMap(world->map);
+	randomizeMap(world->map);
+	minmaxMap(world->map, NULL, NULL);
 	quadMap(world->map);
+	minmaxMap(world->map, NULL, NULL);
+	smoothMap(world->map, 0.025);
+	minmaxMap(world->map, NULL, NULL);
+	smoothMap(world->map, 0.01);
+	minmaxMap(world->map, NULL, NULL);
+	smoothMap(world->map, 0.025);
+	minmaxMap(world->map, NULL, NULL);
+
 	/*normalizeMap(world->map);*/
+	/*smoothMap(world->map, 0.01);*/
+	/*quadMap(world->map);*/
+	/*normalizeMap(world->map);*/
+	/*smoothMap(world->map, 0.025);*/
 	coverMap(world->map);
 
 	/*MoveCameraAtTile(world->map, world->map->width / 2, world->map->height / 2);*/
 	MoveCameraAtTile(world->map, 5, 5);
-	camZoom(world->map->cam, -16);
+	camZoom(world->map->cam, MAP_DEFALUT_ZOOM);
 
 	t1 = (Tank *)malloc(sizeof(Tank));
 	t1->x = 250;
@@ -85,14 +98,14 @@ void DrawWorld()
 
 	DrawMap(world->map);
 
-	DrawTank(t1);
-	DrawTank(t2);
+	/*DrawTank(t1);*/
+	/*DrawTank(t2);*/
 
 	glPopMatrix();
 }
 
 void UpdateWorld(float dt)
 {
-	UpdateTank(t1, dt);
-	UpdateTank(t2, dt);
+	/*UpdateTank(t1, dt);*/
+	/*UpdateTank(t2, dt);*/
 }

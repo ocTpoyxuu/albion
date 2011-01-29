@@ -4,7 +4,7 @@ void drawMapQuad(Map *, int *);
 
 Tile * getTile(Map * m, int x, int y)
 {
-	return m->tiles + m->width*(y % m->height) + (x % m->width);
+	return m->tiles + m->width*((y + m->height) % m->height) + ((x + m->width) % m->width);
 }
 
 void MoveCameraAtTile(Map * m, int x, int y)
@@ -106,6 +106,8 @@ Map * getMap(int width, int height, int tsx, int tsy)
 	Tile * t;
 	Map * m;
 
+	printf("Getting map with w %d h %d tsx %d tsy %d\n", width, height, tsx, tsy);
+
 	m = (Map *)malloc(sizeof(Map));
 	m->width = width;
 	m->height = height;
@@ -113,11 +115,18 @@ Map * getMap(int width, int height, int tsx, int tsy)
 	m->tsx = tsx;
 	m->tsy = tsy;
 	m->cam = getCam(width*tsx, height*tsy);
+	m->groundLevel = MAP_GROUND_LEVEL;
+	m->waterLevel = MAP_WATER_LEVEL;
+	m->mountainLevel = MAP_MOUNTAIN_LEVEL;
+	m->mapStyle = MAP_DEFAULT_STYLE;
 
 	for (i = 0; i < m->width; i++)
 		for (j = 0; j < m->height; j++)
 		{
 			t = getTile(m, i, j);
+
+			t->cx = i;
+			t->cy = j;
 
 			t->color[0] = 1.0f;
 			t->color[1] = 1.0f;
@@ -133,6 +142,8 @@ Map * generateMap(Map * m)
 {
 	int i, j;
 	Tile * t;
+
+	printf("Map generating\n");
 
 	for (j = 0; j < m->height; j++)
 	{
@@ -161,13 +172,17 @@ Map * generateMap(Map * m)
 	return m;
 }
 
-Map * smoothMap(Map * m)
+Map * smoothMap(Map * m, float level)
 {
 	int i, j, k, l;
 	Tile * t;
 	float * grounds;
 
+	printf("Map smoothing with level %f\n", level);
+
 	grounds = (float *)malloc(sizeof(float)*m->width*m->height);
+
+	printf ("Smoother map\n");
 
 	for (i = 0; i < m->width; i++)
 		for (j = 0; j < m->height; j++)
@@ -178,11 +193,17 @@ Map * smoothMap(Map * m)
 				for (l = j - 1; l <= j + 1; l++)
 				{
 					t = getTile(m, k, l);
-					*(grounds + m->width*j + i) += t->ground;
+					*(grounds + m->width*j + i) += (k == i && l == j ? level : 1.0)*t->ground;
 				}
+		}
 
+	printf ("Flush smootheren map\n");
+
+	for (i = 0; i < m->width; i++)
+		for (j = 0; j < m->height; j++)
+		{
 			t = getTile(m, i, j);
-			t->ground = *(grounds + m->width*j + i) / 9.0f;
+			t->ground = *(grounds + m->width*j + i) / (8.0f + level);
 		}
 
 	free(grounds);
@@ -192,74 +213,119 @@ Map * smoothMap(Map * m)
 
 Map * coverMap(Map * m)
 {
-	const float waterLevel = 0.3;
-	const float mountainLevel = 0.7;
-	/*const float groundLevel = 0.5;*/
 	int i, j;
 	Tile * t;
 
-	for (i = 0; i < m->width; i++)
-		for (j = 0; j < m->height; j++)
-		{
-			t = getTile(m, i, j);
+	printf("Map covering\n");
 
-			/*if (t->ground <= groundLevel)*/
-			/*{*/
-				/*t->color[0] = 0.0f;*/
-				/*t->color[1] = t->ground / groundLevel;*/
-				/*t->color[2] = 1.0f - t->ground / groundLevel;*/
-			/*}*/
-			/*else*/
-			/*{*/
-				/*t->color[0] = t->ground / groundLevel - 1.0f;*/
-				/*t->color[1] = 2.0f - t->ground / groundLevel;*/
-				/*t->color[2] = 0.0f;*/
-			/*}*/
+	switch (m->mapStyle)
+	{
+		case MAP_LEVEL:
+			for (i = 0; i < m->width; i++)
+				for (j = 0; j < m->height; j++)
+				{
+					t = getTile(m, i, j);
 
-			if (t->ground < waterLevel)
-			{
-				t->color[0] = 0.0f;
-				t->color[1] = 0.0f;
-				t->color[2] = 1.0f;
-			}
-			else if (t->ground >= waterLevel && t->ground < mountainLevel)
-			{
-				t->color[0] = 0.0f;
-				t->color[1] = 1.0f;
-				t->color[2] = 0.0f;
-			}
-			else
-			{
-				t->color[0] = 1.0f;
-				t->color[1] = 0.0f;
-				t->color[2] = 0.0f;
-			}
+					if (t->ground <= m->groundLevel)
+					{
+						t->color[0] = 0.0f;
+						t->color[1] = t->ground / m->groundLevel;
+						t->color[2] = 1.0f - t->ground / m->groundLevel;
+					}
+					else
+					{
+						t->color[0] = t->ground / m->groundLevel - 1.0f;
+						t->color[1] = 2.0f - t->ground / m->groundLevel;
+						t->color[2] = 0.0f;
+					}
+				}
+			break;
 
-			/*t->color[0] = t->ground;*/
-			/*t->color[1] = t->ground;*/
-			/*t->color[2] = t->ground;*/
-		}
+		case MAP_FLAT:
+			for (i = 0; i < m->width; i++)
+				for (j = 0; j < m->height; j++)
+				{
+					t = getTile(m, i, j);
+
+					if (t->ground < m->waterLevel)
+					{
+						t->color[0] = 0.0f;
+						t->color[1] = 0.0f;
+						t->color[2] = 1.0f;
+					}
+					else if (t->ground >= m->waterLevel && t->ground < m->mountainLevel)
+					{
+						t->color[0] = 0.0f;
+						t->color[1] = 1.0f;
+						t->color[2] = 0.0f;
+					}
+					else
+					{
+						t->color[0] = 1.0f;
+						t->color[1] = 0.0f;
+						t->color[2] = 0.0f;
+					}
+				}
+			break;
+
+		case MAP_HIGHMAP:
+			for (i = 0; i < m->width; i++)
+				for (j = 0; j < m->height; j++)
+				{
+					t = getTile(m, i, j);
+
+					t->color[0] = t->ground;
+					t->color[1] = t->ground;
+					t->color[2] = t->ground;
+				}
+			break;
+	}
 
 	return m;
 }
 
-Map * normalizeMap(Map * m)
+void minmaxMap(Map * m, float * min, float * max)
 {
 	int i, j;
 	Tile * t;
-	float min = 1.0f, max = 0.0f;
+	float imin, imax;
+	int c;
 
+	imin = 1.0f;
+	imax = 0.0f;
+
+	c = 0;
 	for (i = 0; i < m->width; i++)
 		for (j = 0; j < m->height; j++)
 		{
 			t = getTile(m, i, j);
 
-			if (t->ground < min)
-				min = t->ground;
+			if (t->ground < imin)
+				imin = t->ground;
 
-			if (t->ground > max)
-				max = t->ground;
+			if (t->ground > imax)
+				imax = t->ground;
+
+			c++;
 		}
+
+	printf("Map ground min %f max %f on %d tiles\n", imin, imax, c);
+
+	if (min != NULL)
+		*min = imin;
+	if (max != NULL)
+		*max = imax;
+}
+
+Map * normalizeMap(Map * m)
+{
+	printf("Map normalizing\n");
+
+	int i, j;
+	Tile * t;
+	float min, max;
+
+	minmaxMap(m, &min, &max);
 
 	for (i = 0; i < m->width; i++)
 		for (j = 0; j < m->height; j++)
@@ -278,6 +344,8 @@ Map * randomizeMap(Map * m)
 	float c;
 	Tile * t;
 
+	printf("Map randomizing\n");
+
 	for (k = 0; k < m->width*m->height/10; k++)
 	{
 		i = rand()%(m->width);
@@ -294,6 +362,8 @@ Map * quadMap(Map * m)
 {
 	int i, j;
 	Tile * t;
+
+	printf("Map randomizing\n");
 
 	for (i = 0; i < m->width; i++)
 		for (j = 0; j < m->height; j++)

@@ -1,3 +1,4 @@
+#include <sys/time.h>
 #include "engine.h"
 #include "world/world.h"
 #include "main.h"
@@ -93,9 +94,19 @@ void motion(int x, int y)
 	}
 }
 
+void randomize()
+{
+	struct timeval time;
+	gettimeofday(&time, NULL);
+	srand((unsigned int)(time.tv_sec * 1000000 + time.tv_usec));
+	printf("SRAND %u\n", (unsigned int)(time.tv_sec * 1000000 + time.tv_usec));
+}
+
 int main(int argc, char * argv[])
 {
 	InitEngine(&argc, argv);
+
+	randomize();
 
 	SetupWorld();
 	eDestroyWorldFunc(DestroyWorld);

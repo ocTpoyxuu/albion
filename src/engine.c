@@ -1,4 +1,5 @@
 #include <sys/time.h>
+#include "font.h"
 #include "engine.h"
 
 // Drawing stuff
@@ -97,6 +98,13 @@ int DrawScene()
 	if (handlers.drawWorld != NULL)
 		ret = (*(handlers.drawWorld))();
 
+	// Draw stuff info
+	if (1)
+	{
+		glColor3f(1.0, 1.0, 1.0);
+		glPrintString(0.0, 0.0, 20.0, 1, 0, "FPS %f", app.dps);
+	}
+
 	return ret;
 }
 
@@ -122,10 +130,7 @@ void DrawGLScene()
 		frameps = 0;
 		drawps = 0;
 		drawframebase = time;
-
-		printf("FPS %f DPS %f\n", app.fps, app.dps);
 	}
-
 
 	if (swap)
 	{

@@ -5,6 +5,8 @@
 #include "cam.h"
 
 typedef struct tagTILE {
+	int cx, cy;
+
 	GLfloat ground;
 	GLfloat color[4];
 } Tile;
@@ -15,6 +17,12 @@ typedef struct tagMAP {
 	int width, height;
 	Tile * tiles;
 	Cam * cam;
+
+	float waterLevel;
+	float mountainLevel;
+	float groundLevel;
+
+	short mapStyle;
 } Map;
 
 /* Выводим карту. На входе:
@@ -28,10 +36,11 @@ Tile * getTile(Map *, int, int);
 
 Map * getMap(int, int, int, int);
 Map * generateMap(Map *);
-Map * smoothMap(Map *);
+Map * smoothMap(Map *, float);
 Map * coverMap(Map *);
 Map * normalizeMap(Map *);
 Map * randomizeMap(Map *);
 Map * quadMap(Map *);
+void minmaxMap(Map *, float * min, float * max);
 
 #endif
