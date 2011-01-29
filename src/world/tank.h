@@ -1,7 +1,7 @@
 #ifndef _TANK_HPP_
 #define _TANK_HPP_
 
-#include "main.h"
+#include "../main.h"
 #include "world.h"
 
 typedef struct tagTANK {

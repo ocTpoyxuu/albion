@@ -3,7 +3,7 @@
 #
 
 root_source_dir  := src
-source_subdirs   := .
+source_subdirs   := . ./world
 compile_flags    := -Wall -MD -pipe
 link_flags       := -s -pipe
 libraries        := -ldl -lX11 -lglut -lGL -lGLU -lm

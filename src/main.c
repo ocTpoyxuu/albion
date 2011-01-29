@@ -1,9 +1,20 @@
 #include "engine.h"
-#include "world.h"
+#include "world/world.h"
 #include "main.h"
 
 const char AppName [] = "Reciv";
-Application app = {30.0, 800, 600, 200, 100, 800, 600, 1, 0.0, 0.0};
+Application app = {
+	ENGINE_DEFAULT_CTRL_RATE,
+	WINDOW_DEFAULT_WIDTH,
+	WINDOW_DEFAULT_HEIGHT,
+	WINDOW_DEFAILT_LEFT_POSITION,
+	WINDOW_DEFAILT_TOP_POSITION,
+	WINDOW_DEFAULT_WIDTH,
+	WINDOW_DEFAULT_HEIGHT,
+	DEFAULT_FULLSCREEN_STATE,
+	0.0,
+	0.0
+};
 
 int mx = -1,	my = -1,
 	mbx = -1, mby = -1,
@@ -13,16 +24,16 @@ int mscroll = 0;
 void update(float dt)
 {
 	if (skeys[SK_UP_ARROW])
-		MoveCamera(0, -1);
+		DragCamera(0, 1);
 	else if (skeys[SK_DOWN_ARROW])
-		MoveCamera(0, 1);
+		DragCamera(0, -1);
 	else if (skeys[SK_LEFT_ARROW])
-		MoveCamera(-1, 0);
+		DragCamera(-1, 0);
 	else if (skeys[SK_RIGHT_ARROW])
-		MoveCamera(1, 0);
+		DragCamera(1, 0);
 
 	if (mapscroll)
-		MoveCamera(pow((mx - mbx)/200.0, 3), pow((my - mby)/200.0, 3));
+		DragCamera(pow((mx - mbx)/200.0, 3), pow((mby - my)/200.0, 3));
 
 	if (mscroll != 0)
 	{
@@ -47,7 +58,7 @@ int draw()
 
 void resize()
 {
-	MoveCamera(0, 0);
+	DragCamera(0, 0);
 }
 
 void mouse(int button, int state, int x, int y)
