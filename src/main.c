@@ -99,7 +99,6 @@ void randomize()
 	struct timeval time;
 	gettimeofday(&time, NULL);
 	srand((unsigned int)(time.tv_sec * 1000000 + time.tv_usec));
-	printf("SRAND %u\n", (unsigned int)(time.tv_sec * 1000000 + time.tv_usec));
 }
 
 int main(int argc, char * argv[])

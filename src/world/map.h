@@ -4,8 +4,15 @@
 #include "../main.h"
 #include "cam.h"
 
+#define TILE_WATER 0
+#define TILE_PLANE 1
+#define TILE_MOUNTAIN 2
+
 typedef struct tagTILE {
 	int cx, cy;
+	int uid;
+
+	int road;
 
 	GLfloat ground;
 	GLfloat color[4];
@@ -29,10 +36,13 @@ typedef struct tagMAP {
  * int * -- массив четырёх вершин, задающих прямоугольник тайлов, которые будут выводиться
  */
 void DrawMap(Map *);
+void drawMapQuad(Map *, int *);
 
 void MoveCameraAtTile(Map *, int, int);
 
+void getViewQuad(Map *, int *);
 Tile * getTile(Map *, int, int);
+int getTileType(Map *, Tile *);
 
 Map * getMap(int, int, int, int);
 Map * generateMap(Map *);

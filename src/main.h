@@ -23,15 +23,18 @@
 #define MAP_LEVEL 1
 #define MAP_HIGHMAP 2
 
-#define MAP_X 64
-#define MAP_Y 32
+#define MAP_X 256
+#define MAP_Y 256
 #define TILE_SIZE_X 50
 #define TILE_SIZE_Y 50
 #define MAP_WATER_LEVEL 0.3
 #define MAP_MOUNTAIN_LEVEL 0.7
 #define MAP_GROUND_LEVEL 0.5
 #define MAP_DEFAULT_STYLE MAP_FLAT
-#define MAP_DEFALUT_ZOOM -8
+#define MAP_DEFAULT_ZOOM -8
+/*#define MAP_DEFAULT_ZOOM 16*/
+/*#define WORLD_SEC_PER_TURN 3.0*/
+#define WORLD_SEC_PER_TURN 0.25
 
 #define CAM_STEP 5
 #define CAM_ZOOM_MAX 16.0f

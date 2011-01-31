@@ -1,10 +1,22 @@
 #include "map.h"
 
+GLfloat roadColor[4] = {0.5, 0.5, 0.25, 1.0};
+
 void drawMapQuad(Map *, int *);
 
 Tile * getTile(Map * m, int x, int y)
 {
 	return m->tiles + m->width*((y + m->height) % m->height) + ((x + m->width) % m->width);
+}
+
+int getTileType(Map * m, Tile * t)
+{
+	if (t->ground < m->waterLevel)
+		return TILE_WATER;
+	else if (t->ground >= m->waterLevel && t->ground < m->mountainLevel)
+		return TILE_PLANE;
+	else
+		return TILE_MOUNTAIN;
 }
 
 void MoveCameraAtTile(Map * m, int x, int y)
@@ -28,10 +40,9 @@ void MoveCameraAtTile(Map * m, int x, int y)
 	camMoveAbsolute(m->cam, camx, camy);
 }
 
-void DrawMap(Map * m)
+void getViewQuad(Map * m, int * q)
 {
 	int wx1, wx2, wy1, wy2;
-	int q[4];
 	int portvw, portvh;
 	int mapvx = m->width*m->tsx,
 		mapvy = m->height*m->tsy;
@@ -70,6 +81,13 @@ void DrawMap(Map * m)
 		q[3] = m->height;
 	else
 		q[3] = wy2 / m->tsy + 1;
+}
+
+void DrawMap(Map * m)
+{
+	int q[4];
+
+	getViewQuad(m, q);
 
 	drawMapQuad(m, q);
 }
@@ -96,6 +114,23 @@ void drawMapQuad(Map * m, int * quad)
 			glVertex2i(x1, y2);
 			glVertex2i(x1, y1);
 			glVertex2i(x2, y1);
+		}
+	glEnd();
+
+	glPointSize(10.0*m->cam->coef);
+	glBegin(GL_POINTS);
+	glColor4fv(roadColor);
+	for (i = quad[0]; i < quad[2]; i++)
+		for (j = quad[1]; j < quad[3]; j++)
+		{
+			t = getTile(m, i, j);
+
+			if (t->road)
+			{
+				x1 = m->tsx*i + m->tsx/2;
+				y1 = m->tsy*j + m->tsy/2;
+				glVertex2i(x1, y1);
+			}
 		}
 	glEnd();
 }
@@ -127,6 +162,8 @@ Map * getMap(int width, int height, int tsx, int tsy)
 
 			t->cx = i;
 			t->cy = j;
+			t->uid = 0;
+			t->road = 0;
 
 			t->color[0] = 1.0f;
 			t->color[1] = 1.0f;
@@ -144,7 +181,7 @@ Map * generateMap(Map * m)
 	Tile * t;
 
 	printf("Map generating\n");
-
+ 
 	for (j = 0; j < m->height; j++)
 	{
 		t = getTile(m, 0, j);
@@ -245,21 +282,23 @@ Map * coverMap(Map * m)
 			for (i = 0; i < m->width; i++)
 				for (j = 0; j < m->height; j++)
 				{
+					int type;
 					t = getTile(m, i, j);
+					type = getTileType(m, t);
 
-					if (t->ground < m->waterLevel)
+					if (type == TILE_WATER)
 					{
 						t->color[0] = 0.0f;
 						t->color[1] = 0.0f;
 						t->color[2] = 1.0f;
 					}
-					else if (t->ground >= m->waterLevel && t->ground < m->mountainLevel)
+					else if (type == TILE_PLANE)
 					{
 						t->color[0] = 0.0f;
 						t->color[1] = 1.0f;
 						t->color[2] = 0.0f;
 					}
-					else
+					else if (type == TILE_MOUNTAIN)
 					{
 						t->color[0] = 1.0f;
 						t->color[1] = 0.0f;

@@ -221,6 +221,29 @@ void specialKeyUp(int key, int x, int y)
 
 void GLMouse(int button, int state, int x, int y)
 {
+	GLint viewport[4];
+	GLdouble mvmatrix[16], projmatrix[16];
+	GLint realy;
+	GLdouble wx, wy, wz;
+
+	switch (button)
+	{
+		case GLUT_LEFT_BUTTON:
+			if (state == GLUT_DOWN)
+			{
+				glGetIntegerv(GL_VIEWPORT, viewport);
+				glGetDoublev(GL_MODELVIEW_MATRIX, mvmatrix);
+				glGetDoublev(GL_PROJECTION_MATRIX, projmatrix);
+
+				realy = viewport[3] - (GLint)y - 1;
+				gluUnProject((GLdouble)x, (GLdouble)realy, 1.0,
+					mvmatrix, projmatrix, viewport,
+					&wx, &wy, &wz);
+				printf("World coords (%f,%f)\n", wx, wy); 
+			}
+			break;
+	}
+
 	/*printf("Mouse event at x %d y %d with state %x button %x", x, y, state, button);*/
 	btn[button] = (state == GLUT_DOWN ? 1 : 0);
 	/*printf(" btn{%d, %d, %d, %d, %d}\n", btn[0], btn[1], btn[2], btn[3], btn[4]);*/
