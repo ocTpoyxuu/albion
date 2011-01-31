@@ -4,6 +4,7 @@
 #include "settler.h"
 #include "worker.h"
 #include "village.h"
+#include "../font.h"
 
 #define DIR_S  0x1
 #define DIR_ES 0x2
@@ -238,6 +239,9 @@ void DrawWorld()
 	drawMapQuad(world->map, q);
 
 	DrawUnits(q);
+
+	glColor3f(0.0, 0.5, 1.0);
+	glPrintString(0.0, 25.0, 20.0, 1, 0, "Turn %d", world->turn);
 }
 
 void UpdateWorld(float dt)
