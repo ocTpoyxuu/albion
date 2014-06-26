@@ -3,10 +3,10 @@
 #
 
 root_source_dir  := src
-source_subdirs   := .
-compile_flags    := -Wall -MD -pipe
-link_flags       := -s -pipe
-libraries        := -ldl -lX11 -lglut -lGL -lGLU -lm
+source_subdirs   := . ./world
+compile_flags    := -Wall
+link_flags       :=
+libraries        := -lglut -lGL -lGLU -lm
 
 relative_include_dirs := $(addprefix ../../, $(root_include_dir))
 relative_source_dirs  := $(addprefix ../../$(root_source_dir)/, $(source_subdirs))
